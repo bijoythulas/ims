@@ -4,13 +4,11 @@
 ### id url test
 get  http://@{{hostname}}/GetEncounterById/1
 
-### get encounter matches
-get  http://@{{hostname}}/GetEncounterMatches/1
+### id url test
+get  http://@{{hostname}}/GetEncounterMatchCountById/1
 
-### delete all in collection
-get  http://@{{hostname}}/ClearSolr
 
-###/home/bijoy/code_experiments/solr-8.9.0/bin
+
 
 ### register encounter
 POST http://@{{hostname}}/registerEncounter 
@@ -18,40 +16,88 @@ content-type: application/json
 
 {
   
- "name": "testupdate",
+ "name": "testupdate4",
   "age":11,
-  "contactEmail": "asd233321@dd.co",
-  "country": "AUS",
+  "contactEmail": "kdosugk@dd.com",
+  "country": "INDI",
   "imageBiometricCaptureType" :"LIVE",
   "matches":[
-    {"name":"first match", "pid":"PID002",
+    {"name":"first match1", "pid":"PID002",
      "encounterTypes":[{"code":"VISA", "descritpion": "visa encounter"}]
 
           },
     
-    {"name":"second match", "pid":"PID002",      
+    {"name":"second match3", "pid":"PID002",      
     "encounterTypes":[{"code":"GATES", "descritpion": "GATES CHECK IN"}]
     }
-    ]
+    ],
+    "encounterLocations":[{"locationName":"Dubai"}, {"locationName":"Singapore"}]
 }
 
-    "Joe Bloggs2",
-      12,
-      "03/11/2001",
-      "Singapore",
-      BiometricCaptureType.CHIP
-### set up test data 
-get http://@{{hostname}}/registerEncounter/
+
+###update 
+
+POST http://@{{hostname}}/registerEncounter 
 content-type: application/json
 
 {
-  
- "name": "testupdate",
-  "age":"23",
-  "contactEmail": "asd@dd.co",
-  "country": "Singapore",
-  "imageBiometricCaptureType" :"LIVE"
+  "id": 1,
+  "name": "testupdate6766",
+  "age": 11,
+  "contactEmail": "kdgk@dd.com",
+  "country": "AUS",
+  "imageBiometricCaptureType": "LIVE",
+  "matches": [
+    {
+      "id": 4,
+      "name": "first match",
+      "pid": "PID002",
+      "encounterTypes": [
+        {
+          "id": 5,
+          "code": "VISA",
+          "description": null
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "second match",
+      "pid": "PID002",
+      "encounterTypes": [
+        {
+          "id": 7,
+          "code": "GATES",
+          "description": null
+        }
+      ]
+    }
+  ],
+  "encounterLocations": [
+    {
+      "id": 2,
+      "locationName": "Dubai"
+    },
+    {
+ 
+      "locationName": "Singapore"
+    }
+  ]
 }
+
+
+
+
+
+
+### get GetStoreById
+
+get  http://@{{hostname}}/GetCodeTableRow/country/INDI
+
+
+
+### delete all in collection
+get  http://@{{hostname}}/ClearSolr
 
 ### H2 admin 
 get http://localhost:8081/h2

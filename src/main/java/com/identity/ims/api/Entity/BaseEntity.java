@@ -2,7 +2,7 @@ package com.identity.ims.api.Entity;
 
 import java.util.Date;
 
-
+import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Version;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,20 +29,28 @@ public abstract class BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    /*
     @JsonIgnore
-    @Version protected Integer version;
-    
+    @Version
+    protected Integer version;
+    */
+
     @JsonIgnore
     @CreatedBy
+    @Column(updatable = false)    
     private String createdBy;
 
+    @JsonIgnore
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(updatable = false)    
     private Date createdDate;
 
+    @JsonIgnore
     @LastModifiedBy
     private String lastModifiedBy;
     
+    @JsonIgnore
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastModifiedDate;

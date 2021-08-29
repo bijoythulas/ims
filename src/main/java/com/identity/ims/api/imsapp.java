@@ -21,9 +21,11 @@ public class imsapp {
 
 	void thingsTodo()
 	{
-		//TODO build table validation
-		//TODO gotchas page 
 		
+	   //TODO HANDLE UNIQUE CONSTRAINT VALIDATION
+	   //TODO UPDATE TEST
+	   //TODO MOCK SERVICE CALL 
+
 	}
 
         

@@ -1,22 +1,20 @@
 package com.identity.ims.api.Entity;
 
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Data
-@Table(name = "EncounterType")
+@EqualsAndHashCode(callSuper = true)
 public class EncounterType extends BaseEntity {
-    @Id
-    @GeneratedValue
-    private int id;
 
-    private String code;
+  private String code;
 
-    private String description; 
- 
+  private String description;
 
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Match match;
 }

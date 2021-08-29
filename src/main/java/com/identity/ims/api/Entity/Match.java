@@ -1,5 +1,8 @@
 package com.identity.ims.api.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
+import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -9,8 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import javax.persistence.*;
-import java.util.List;
+import org.hibernate.annotations.LazyToOne;
+import org.hibernate.annotations.LazyToOneOption;
 
 @Entity
 @Getter
@@ -30,9 +33,35 @@ public class Match {
   @NonNull
   private String pid;
 
-  @OneToMany(targetEntity = EncounterType.class,cascade = CascadeType.ALL)
-  @JoinColumn(name ="match_id",referencedColumnName = "id")
-  private List <EncounterType> encounterTypes;
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @LazyToOne(LazyToOneOption.NO_PROXY)
+  private Encounter encounter;
 
+  //region encounterTypes
 
+  @OneToMany(
+    mappedBy = "match",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  )
+  private List<EncounterType> encounterTypes;
+
+  public void addEncounterType(EncounterType encounterType) {
+    encounterTypes.add(encounterType);
+    encounterType.setMatch(this);
+  }
+
+  public void removeEncounterType(EncounterType encounterType) {
+    encounterTypes.remove(encounterType);
+    encounterType.setMatch(null);
+  }
+
+  public void setEncounterTypes(List<EncounterType> encounterTypes) {
+    this.encounterTypes = encounterTypes;
+    encounterTypes.forEach(entity -> entity.setMatch(this));
+  }
+  //endregion
+
+  //endregion
 }

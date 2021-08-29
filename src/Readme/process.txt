@@ -1,0 +1,69 @@
+FlowInstance
+    Id
+    EncounterId
+    FlowInstanceStatus_Code
+    ProcessingServerName
+
+Payload
+    id
+    payloadTypeCode
+    flowInstanceId
+    payload
+    
+PayloadType
+    Id
+    Code
+FlowInstanceStatus
+    Id
+    Code
+
+Iterate Unprocessed Encounters By ProcessingServerName
+ProcessEncounter(FlowInstanceId)
+    Switch (currentProcessStatus)
+    {
+        case Initial:
+            processInitial(EncounterProcessStatusId);
+        case 'CDHMATCHRESPONSE_RECEIVED':
+            
+            processEBISCall(OrchestratorFlowInstanceId)
+    }
+
+    processInitial(OrchestratorFlowInstanceId)
+    {
+        //solr match and store request/response in payload table
+        InsertOrchestratorPayload(OrchestratorFlowInstanceId,'ID05Request',RequestJson)
+        Id005Match();
+        InsertOrchestratorPayload(OrchestratorFlowInstanceId,'ID05Response',ResponseJson)
+
+        //raise cdh match request store request in payload 
+        InsertOrchestratorPayload(OrchestratorFlowInstanceId,'CDHMatchRequest',RequestJson)
+        RaiseCDHMatchRequest(EncounterStagePayloadId,CDHMatchRequest);
+        
+        //update the flows instances processing stage to cdh request has been raised 
+        EncounterProcessStatusUpdate(OrchestratorFlowInstanceId,'CDHMATCHREQUESTRAISED');
+    }
+
+    //poller
+    processCDHMATCHREQUEST_RESPONSE(OrchestratorFlowInstanceId,payload) 
+    {
+        //store the cdh response
+        InsertOrchestratorPayload(OrchestratorFlowInstanceId,'CDHMatchResponse',ResponseJson)
+        
+        //update the processing stage to cdh reponse has been raised 
+        EncounterProcessStatusUpdate(EncounterProcessStatusId,'CDHMATCHRESPONSE_RECEIVED');
+
+    }
+
+    processEBISCall(OrchestratorFlowInstanceId)
+    {
+        //load id05 response and cdh response cast to bean form orchestrate and call ebis
+        Json CdhResponse  = GetResponsePayload(OrchestratorFlowInstanceId,'CDHMatchResponse');
+        Json ID05Response = GetResponsePayload(OrchestratorFlowInstanceId,'ID05Response');
+
+        InsertOrchestratorPayload(OrchestratorFlowInstanceId,'ID08Request',RequestJson)
+        call EBIS (CdhResponse + ID05Response)
+
+        //update the processing stage to cdh reponse has been raised 
+        EncounterProcessStatusUpdate(EncounterProcessStatusId,'ID08Request_Raised');
+
+    }

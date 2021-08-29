@@ -1,2 +1,2 @@
-INSERT INTO code.country(code,version) VALUES('INDI',0);
-INSERT INTO code.country(code,version) VALUES('AUS',0);
+INSERT INTO code.country(code,version,is_active) VALUES('INDI',0,1);
+INSERT INTO code.country(code,version,is_active) VALUES('AUS',0,1);

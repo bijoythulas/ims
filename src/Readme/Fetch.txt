@@ -1,0 +1,52 @@
+Fetch strategy
+
+    Only by exception write custom queries. -- test sql compliance with physical db prior to deploy
+
+    dont @onetoone to code table. instead just use code column on entity. performance reasons
+   
+    https://vladmihalcea.com/the-best-way-to-map-a-onetomany-association-with-jpa-and-hibernate/  
+
+    to return fetch lazy relations getbyid(0).get() - otherwise json will throw exceptions
+
+    birectional mappings
+      for standard one->many + many-> realtionships useonly birectional hibernate mappings  
+      hand code hierarchy using below template
+      example 
+        //region childrens template
+        //   use below template find and replace in the below order and use them in your parent class
+            //w preserveCase --> childList -> childobject  -> parentObject
+
+            @OneToMany(mappedBy = "parentObject",cascade = CascadeType.ALL,orphanRemoval = true)
+            @Column(insertable = true) 
+            private List<ChildObject> childList;
+            public void addChildObject(ChildObject childObject)
+            {
+            
+            childList.add(childObject);
+            childObject.setParentObject(this);
+
+            }
+
+            public void removeChildObject(ChildObject childObject)
+            {
+            childList.remove(childObject);
+            childObject.setParentObject(null);
+            }
+
+            public void setChildList(List<ChildObject> childList) {
+            this.childList = childList;
+            childList.forEach(entity -> entity.setParentObject(this));
+            } 
+            //endregion
+        Child class relationship code 
+            @JsonIgnore
+            @ManyToOne(fetch = FetchType.LAZY)
+            private Parent parent;
+
+
+     
+     
+
+    custom queries extend entities repository and transfer through a DTO
+      @Query(nativeQuery = true,value="select m.name as name  from encounter e join match m on e.id =m.encounter_id  where e.id =?1")
+      List<ShortsDto> findMatches(Integer id);

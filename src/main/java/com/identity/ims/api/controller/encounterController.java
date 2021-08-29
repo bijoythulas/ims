@@ -1,16 +1,16 @@
 package com.identity.ims.api.controller;
 
 import com.identity.ims.api.Entity.Encounter;
+
 import com.identity.ims.api.dto.ShortsDto;
 import com.identity.ims.api.services.EncounterService;
 import com.identity.ims.api.services.SolrService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,37 +21,41 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class encounterController {
 
   @Autowired
-  private  EncounterService service;
+  private EncounterService service;
 
-  
+  @Autowired
+  EntityManager entityManager;
+
+  private final SolrService solrService;
 
   @PostMapping("/registerEncounter")
   @ApiOperation(value = "Call this to register encounter", httpMethod = "POST")
   public Encounter registerEncounter(@Valid @RequestBody Encounter encounter) {
-    
     return service.registerEncounter(encounter);
   }
-
 
   @RequestMapping("/GetEncounterById/{id}")
   @ApiOperation(value = "fetch encounter by id", httpMethod = "GET")
   public Encounter GetEncounterById(@PathVariable int id) {
     return service.getEncounterById(id);
   }
-  
-  private final SolrService solrService;
 
-  
+  @RequestMapping("/GetEncounterMatchCountById/{id}")
+  public String GetEncounterMatchCountById(@PathVariable Integer id) {
+    //Encounter encounter =encounterRepository.getById(id);
+    Encounter encounter = entityManager.find(Encounter.class, id);
+
+    String ss = encounter.getContactEmail();
+
+    return ss;
+  }
 
   @RequestMapping("/ClearSolr")
   @ApiOperation(value = "clear solr data", httpMethod = "GET")
   public Boolean ClearSolr() {
-     return solrService.deleteAll();
+    return solrService.deleteAll();
   }
 
-
-
- 
   /*
   public User getUserById(@PathVariable (value = "id") long userId) {
 		return this.userRepository.findById(userId)
@@ -59,10 +63,13 @@ public class encounterController {
 	}
 */
 
-
   @RequestMapping("/GetEncounterMatches/{id}")
   @ApiOperation(value = "get encounter matches by id", httpMethod = "GET")
   public List<ShortsDto> GetEncounterMatches(@PathVariable int id) {
     return service.GetMatchesById(id);
   }
+
+  
+
+
 }

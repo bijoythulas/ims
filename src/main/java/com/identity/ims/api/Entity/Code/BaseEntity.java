@@ -1,4 +1,4 @@
-package com.identity.ims.api.Entity;
+package com.identity.ims.api.Entity.Code;
 
 import java.util.Date;
 
@@ -19,6 +19,7 @@ import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import org.hibernate.annotations.Nationalized;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -30,7 +31,7 @@ import lombok.Data;
 @MappedSuperclass
 @EntityListeners (AuditingEntityListener.class)
 
-public abstract class BaseCodeEntity {
+public abstract class BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -42,10 +43,11 @@ public abstract class BaseCodeEntity {
     @Column(length = 100)
     private String shortDescription; 
 
-    @Column(length = 1000)
+    @Nationalized
+    @Column(columnDefinition = "varchar(max)")
     private String longDescription; 
 
-    private String isActive;
+    private boolean isActive;
 
 
     @JsonIgnore
@@ -55,14 +57,16 @@ public abstract class BaseCodeEntity {
     @CreatedBy
     private String createdBy;
 
+    @JsonIgnore
     @CreatedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
+    @JsonIgnore
     @LastModifiedBy
     private String lastModifiedBy;
  
-
+    @JsonIgnore
     @LastModifiedDate
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastModifiedDate;

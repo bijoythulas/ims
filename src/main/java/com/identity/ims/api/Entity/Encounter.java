@@ -1,6 +1,7 @@
 package com.identity.ims.api.Entity;
 
 import com.identity.ims.api.enums.BiometricCaptureType;
+import com.identity.ims.api.enums.CodeTable;
 import com.identity.ims.api.utils.validation.ListValidation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,31 +11,13 @@ import javax.persistence.Entity;
 import javax.validation.constraints.*;
 import lombok.*;
 
-//https://www.baeldung.com/jpa-entity-graph
-/*
-@NamedEntityGraph(
-  name = "graph.Encounter.Match",
-  attributeNodes = @NamedAttributeNode(
-    value = "matches",
-    subgraph = "subgraph.encounter.match.encountertype"
-  ),
-  subgraphs = {
-    @NamedSubgraph(
-      name = "subgraph.encounter.match.encountertype",
-      attributeNodes = @NamedAttributeNode(value = "encounterTypes")
-    ),
-  }
-)
-*/
-
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
+@NoArgsConstructor
 @ApiModel(
   description = "Party encounter details to be provided when registering encounters"
 )
-@RequiredArgsConstructor
-@NoArgsConstructor
-
 public class Encounter extends BaseEntity {
 
   @ApiModelProperty(
@@ -44,7 +27,7 @@ public class Encounter extends BaseEntity {
     position = 0
   )
   @Size(min = 0, max = 20)
-  @NotNull(message = "name is required")
+  @NotEmpty
   @NonNull
   private String name;
 
@@ -60,12 +43,13 @@ public class Encounter extends BaseEntity {
   private Integer age;
 
   @Email
-  @NotNull(message = "contactEmail is required")
+  @NotEmpty
+  @NotNull
   @NonNull
   @Column(unique = true)
   private String contactEmail;
 
-  @ListValidation(message = "Invalid country", codeTable = "Country")
+  @ListValidation(message = "Invalid country", codeTable = CodeTable.country)
   @NotNull(message = "country is required")
   @NonNull
   private String country;
@@ -75,7 +59,91 @@ public class Encounter extends BaseEntity {
   @NonNull
   private BiometricCaptureType imageBiometricCaptureType;
 
-  @OneToMany(targetEntity = Match.class, cascade = CascadeType.ALL)
-  @JoinColumn(name = "encounter_id", referencedColumnName = "id")
+  //region matches
+  //@Setter(AccessLevel.NONE)
+
+  @OneToMany(
+    fetch = FetchType.LAZY,
+    mappedBy = "encounter",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  )
   private List<Match> matches;
+
+  public void addMatch(Match match) {
+    matches.add(match);
+    match.setEncounter(this);
+  }
+
+  public void removeMatch(Match match) {
+    matches.remove(match);
+    match.setEncounter(null);
+  }
+
+  public void setMatches(List<Match> matches) {
+    System.out.println("enter set matches");
+    this.matches = matches;
+    matches.forEach(entity -> entity.setEncounter(this));
+  }
+
+  //endregion
+
+  //region encounterLocations
+  //@Setter(AccessLevel.NONE)
+
+  @OneToMany(
+    fetch = FetchType.LAZY,
+    mappedBy = "encounter",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  )
+  private List<EncounterLocation> encounterLocations;
+
+  public void addEncounterLocation(EncounterLocation encounterlocation) {
+    encounterLocations.add(encounterlocation);
+    encounterlocation.setEncounter(this);
+  }
+
+  public void removeEncounterLocation(EncounterLocation encounterlocation) {
+    encounterLocations.remove(encounterlocation);
+    encounterlocation.setEncounter(null);
+  }
+
+  public void setEncounterLocations(
+    List<EncounterLocation> encounterLocations
+  ) {
+    this.encounterLocations = encounterLocations;
+    encounterLocations.forEach(entity -> entity.setEncounter(this));
+  }
+  //endregion
+
+  //region childrens template
+  /* 
+//w preserveCase --> childList -> childobject  -> parentObject
+
+@OneToMany(mappedBy = "parentObject",cascade = CascadeType.ALL,orphanRemoval = true)
+
+private List<ChildObject> childList;
+public void addChildObject(ChildObject childObject)
+{
+ 
+  childList.add(childObject);
+  childObject.setParentObject(this);
+
+}
+
+public void removeChildObject(ChildObject childObject)
+{
+  childList.remove(childObject);
+  childObject.setParentObject(null);
+}
+
+public void setChildList(List<ChildObject> childList) {
+  this.childList = childList;
+  childList.forEach(entity -> entity.setParentObject(this));
+} 
+//endregion
+
+*/
+
 }

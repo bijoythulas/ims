@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppC
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.identity.ims.api.Entity.Encounter;
-import com.identity.ims.api.enums.BiometricCaptureType;
+
 import com.identity.ims.api.repository.EncounterRepository;
 import com.identity.ims.api.repository.SolrEncounterRepository;
 
@@ -73,15 +73,22 @@ public class RegisterEncounterTest {
   @DisplayName("Register a simple encounter successfully")
   public void RegisterEncounter() throws Exception {
 
+    Encounter encounter = new Encounter();
+   
+    /*
     Encounter encounter = new Encounter(
       "Joe Bloggs2",
       12,
       "aa@dd.com",
-      "Singapore",
+      "AUS",
       BiometricCaptureType.CHIP
     );
 
+    */
     
+
+
+   
     //Mockito.when(encounterRepository.save(encounter)).thenReturn(encounter);
 
     mockMvc

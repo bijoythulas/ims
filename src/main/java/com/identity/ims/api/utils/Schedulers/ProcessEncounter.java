@@ -1,4 +1,4 @@
-package com.identity.ims.api.utils.Scheduling;
+package com.identity.ims.api.utils.Schedulers;
 import java.util.Date;
 
 import com.identity.ims.api.config.ImsConfig;
@@ -12,7 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(name="com.identity.ims.api.scheduling",matchIfMissing = true)
-class SchedulingConfiguration
+class ProcessEncounter
 {
      @Autowired
      private ImsConfig imsConfig;
