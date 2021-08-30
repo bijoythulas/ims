@@ -32,14 +32,3 @@ Coding styles
 
 
 
-Relationships 
----------------------
---dont create relationships to code table. performance reasons
---use code field. expose enum on rest end points
---validate using look listvalidation validator 
---One to many relationships in parent class
-  @OneToMany(targetEntity = Match.class, cascade = CascadeType.ALL)
-  @JoinColumn(name = "parententity_id", referencedColumnName = "id")
-
-  #TODO 
-  load code.data tables into data-h2.sql 
