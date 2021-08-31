@@ -9,8 +9,10 @@ import java.util.List;
 import javax.persistence.*;
 import javax.persistence.Entity;
 import javax.validation.constraints.*;
+
 import lombok.*;
 
+ 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -18,6 +20,7 @@ import lombok.*;
 @ApiModel(
   description = "Party encounter details to be provided when registering encounters"
 )
+//@Accessors(fluent = true)
 public class Encounter extends BaseEntity {
 
   @ApiModelProperty(
@@ -61,6 +64,7 @@ public class Encounter extends BaseEntity {
 
   //region matches
   //@Setter(AccessLevel.NONE)
+
 
   @OneToMany(
     fetch = FetchType.LAZY,

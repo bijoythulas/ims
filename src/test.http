@@ -105,10 +105,16 @@ get http://localhost:8081/h2
 ###  swagger
 get   http://localhost:8081/swagger-ui/
 
+http://localhost:8081/v3/api-docs/
+http://localhost:8081/api-docs.yaml 
 ##solr
 get http://localhost:8983
 
 get http://localhost:8081/v2/api-docs
+
+#starting solr
+ /home/bijoy/code_experiments/solr-8.9.0/bin/solr start
+
 https://www.dariawan.com/tutorials/spring/springfox-bean-validators-swagger-documentation/
 https://fullstackdeveloper.guru/2020/05/01/how-to-integrate-sqlite-database-with-spring-boot/
 

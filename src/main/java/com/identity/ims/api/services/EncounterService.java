@@ -29,12 +29,17 @@ public class EncounterService {
   private EntityManager em;
 
   @Autowired
+  private SolrService solrService; 
+
+  @Autowired
   ObjectMapper objectMapper;
 
   @Transactional
   public Encounter registerEncounter(Encounter encounter) {
     //updateCountry();
 
+    solrService.Save(encounter);
+    
     encounterRepository.save(encounter);
 
     return encounter;

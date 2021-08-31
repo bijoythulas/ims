@@ -1,0 +1,2461 @@
+swagger: '2.0'
+info:
+  contact:
+    email: joy.devassy@homeaffairs.gov.au
+    name: Joy Devassy
+  description: This is the Open API specification for Identity person encounters resource
+  title: Identity encounters API
+  version: 1.0.4
+host: localhost
+basePath: /identity/v1/encounters
+schemes:
+  - https
+paths:
+  /:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/system-id'
+        - $ref: '#/parameters/user-id'
+        - $ref: '#/parameters/request-timestamp'
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+        - description: person encounter data
+          in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/encounterRequest'
+            required:
+              - data
+            type: object
+      responses:
+        '201':
+          description: Created
+          headers:
+            location:
+              description: The relative path of the newly created encounter resource
+              type: string
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/createEncounterResponse'
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: Create a new encounter resource for a person
+      operationId: createEncounter
+    head:
+      responses:
+        '200':
+          description: OK
+      tags:
+        - encounters
+      summary: Health check
+      description: Health check on the encounters resource
+      operationId: healthCheckEncounters
+  /events:
+    get:
+      tags:
+        - encounters
+      description: Retrieve recent Events
+      operationId: retrieveEvents
+      summary: Retrieve recent Events
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successful Operation
+          headers:
+            Link:
+              type: array
+              items:
+                collectionFormat: csv
+                type: string
+              description: The Event topic and hub URLs that a subscriber may subscribe to or unsubscribe from
+          schema:
+            $ref: '#/definitions/eventResponse'
+  /events/subscribe:
+    post:
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      tags:
+        - encounters
+      description: Manage Event Subscriptions
+      operationId: manageSubscription
+      summary: Manage Event Subscriptions
+      parameters:
+        - name: hub.callback
+          in: formData
+          description: |
+            The subscriber's callback URL where content distribution notifications should be delivered.
+            The callback URL _**SHOULD**_ be an unguessable URL that is unique per subscription.
+          required: true
+          type: string
+        - name: hub.mode
+          in: formData
+          description: The literal string "subscribe" or "unsubscribe", depending on the goal of the request.
+          required: true
+          type: string
+          enum:
+            - subscribe
+            - unsubscribe
+        - name: hub.topic
+          in: formData
+          description: |
+            The topic URL that the subscriber wishes to subscribe to or unsubscribe from.
+            Note that this _**MUST**_ be the "self" URL found during the discovery step, which may be different from the URL that was used to make the discovery request.
+          required: true
+          type: string
+        - name: hub.lease_seconds
+          in: formData
+          description: |
+            Number of seconds for which the subscriber would like to have the subscription active, given as a positive decimal integer.
+            Hubs _**MAY**_ choose to respect this value or not, depending on their own policies, and _**MAY**_ set a default value if the subscriber omits the parameter.
+            This parameter _**MAY**_ be present for unsubscription requests and _**MUST**_ be ignored by the hub in that case.
+          required: false
+          type: integer
+          minimum: 0
+        - name: hub.secret
+          in: formData
+          description: |
+            A subscriber-provided cryptographically random unique secret string that will be used to compute an HMAC digest for authorized content distribution.
+            If not supplied, the HMAC digest will not be present for content distribution requests.
+            This parameter _**SHOULD**_ only be specified when the request was made over HTTPS [RFC2818].
+            This parameter _**MUST**_ be less than 200 bytes in length.
+          required: false
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '202':
+          description: Accepted
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '403':
+          description: Access denied
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+  '/{encounterId}':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: the unique encounter resource id
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - collectionFormat: multi
+          description: include the names of encounter data-areas to be returned in a comma separated format. The specified data will be returned along with the encounter core data.
+          in: query
+          items:
+            enum:
+              - all
+              - associations
+              - biographics
+              - biometrics
+              - businessContexts
+              - contactMethods
+              - contextContainers
+              - declaredCitizenships
+              - documents
+              - encounterDetails
+              - ethnicities
+              - identifiers
+              - languages
+              - relationshipStatuses
+              - religions
+              - residenceCountries
+            type: string
+          name: include
+          type: array
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/retrieveEncounterResponse'
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: 'Multiple encounter data-area names can be optionally provided with the use of the ''include'' keyword, the default without any include parameter will retrieve basic encounter information with links to all encounter data-areas'
+      operationId: retrieveEncounter
+      summary: Retrieves encounter by providing encounterId
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - description: the unique encounter resource id
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+        - description: add details to an existing encounter
+          in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              data:
+                $ref: '#/definitions/encounterPatchRequest'
+            required:
+              - data
+            type: object
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: add details to an existing encounter
+      operationId: addEncounterDetails
+  '/{encounterId}/biographics':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter biographics details by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter biographic details
+                items:
+                  $ref: '#/definitions/personBiographic'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter biographics details by encounterId
+      operationId: retrieveEncounterBiographics
+  '/{encounterId}/biometrics':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter biometric details without images by providing the encounterId (images are retrieved separately)
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter biometric details
+                items:
+                  $ref: '#/definitions/biometricDetail'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter biometric details without images by encounterId (images are retrieved separately)
+      operationId: retrieveEncounterBiometrics
+  '/{encounterId}/business-contexts':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter business-context details by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter business-context details
+                items:
+                  $ref: '#/definitions/businessContext'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter business-contexts details by encounterId
+      operationId: retrieveEncounterBusinessContexts
+  '/{encounterId}/contact-methods':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter contact details by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter contact details
+                items:
+                  $ref: '#/definitions/contactMethod'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter contacts details by encounterId
+      operationId: retrieveEncounterContacts
+  '/{encounterId}/document-images':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter document-images by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter document-images
+                items:
+                  $ref: '#/definitions/documentImage'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter document-images by encounterId
+      operationId: retrieveEncounterDocumentImages
+  '/{encounterId}/documents':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter document details by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter document details
+                items:
+                  $ref: '#/definitions/documentDetail'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter document details without images by encounterId (images are retrieved separately)
+      operationId: retrieveEncounterDocuments
+  '/{encounterId}/facial-images':
+    get:
+      produces:
+        - application/json
+      parameters:
+        - description: retrieve encounter biometric face-images by providing the encounterId
+          in: path
+          name: encounterId
+          required: true
+          type: string
+        - $ref: '#/parameters/message-id'
+        - $ref: '#/parameters/correlation-id'
+        - $ref: '#/parameters/transaction-id'
+      responses:
+        '200':
+          description: OK
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            properties:
+              data:
+                description: Encounter biometric face-images
+                items:
+                  $ref: '#/definitions/facialImage'
+                type: array
+            required:
+              - data
+            type: object
+        '400':
+          description: Bad Request
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '401':
+          description: Unauthorised
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+        '500':
+          description: Internal Server Error
+          headers:
+            correlation-id:
+              description: Response correlation id
+              type: string
+            message-id:
+              description: Response message id
+              type: string
+            transaction-id:
+              description: Response transaction id
+              format: uuid
+              type: string
+          schema:
+            $ref: '#/definitions/errors'
+      tags:
+        - encounters
+      description: get encounter biometric face-images by encounterId
+      operationId: retrieveEncounterFacialImages
+definitions:
+  acquisitionMethod:
+    properties:
+      method:
+        enum:
+          - NON_ELECTRONICALLY_SUPPLIED
+          - ELECTRONICALLY_SUPPLIED
+          - CLIENT_PRESENTED_TO_DEPARTMENT
+          - CHIP
+          - LIVE
+          - BIOGRAPHIC_PAGE
+        type: string
+    type: object
+  association:
+    properties:
+      encounterId:
+        type: string
+      partyType:
+        description: A party can be either a person or organisation.
+        type: string
+      relatedPartyIdentifier:
+        $ref: '#/definitions/identifier'
+      relationshipType:
+        type: string
+      resolutionStatusCode:
+        type: string
+    required:
+      - relatedPartyIdentifier
+    type: object
+  biographic:
+    properties:
+      birthCountry:
+        $ref: '#/definitions/country'
+      birthDate:
+        $ref: '#/definitions/dateType'
+      familyName:
+        type: string
+      givenName:
+        type: string
+      nameSuffix:
+        type: string
+      nameTitle:
+        type: string
+      sexCode:
+        $ref: '#/definitions/genderSexType'
+    required:
+      - familyName
+      - birthDate
+      - sexCode
+      - birthCountry
+    type: object
+  biographicAcquisitionMethod:
+    properties:
+      method:
+        enum:
+          - NON_ELECTRONICALLY_SUPPLIED
+          - ELECTRONICALLY_SUPPLIED
+          - CHIP
+          - IMAGE
+          - LIVE
+          - BIOGRAPHIC_PAGE
+          - OCR
+          - MRZ
+          - KEYED
+          - INTERVIEW
+          - OTHER_DEPARTMENT_SYSTEM
+          - CHIP_OR_MRZ
+          - OTHER
+        type: string
+    type: object
+  biometricDetail:
+    properties:
+      aCTProvision:
+        type: string
+      acquisitionMethod:
+        $ref: '#/definitions/acquisitionMethod'
+      acquisitionTimeStamp:
+        $ref: '#/definitions/dateTimeType'
+      biometricCaptureDevice:
+        properties:
+          hostName:
+            type: string
+          iPAddress:
+            type: string
+          imageCaptureDeviceIdentifier:
+            type: string
+          imageCaptureDeviceModel:
+            type: string
+          imageCaptureDeviceType:
+            enum:
+              - NULL_DEVICE
+              - STATIC_PHOTOGRAPH_FROM_AN_UNKNOWN_SOURCE
+              - STATIC_PHOTOGRAPH_FROM_A_DIGITAL_STILL_IMAGE_CAMERA
+              - STATIC_PHOTOGRAPH_FROM_A_SCANNER
+              - SINGLE_VIDEO_FRAME_FROM_AN_UNKNOWN_SOURCE
+              - SINGLE_VIDEO_FRAME_FROM_AN_ANALOGUE_VIDEO_CAMERA
+              - SINGLE_VIDEO_FRAME_FROM_A_DIGITAL_VIDEO_CAMERA
+              - UNKNOWN
+              - FINGERPRINT_SCANNER
+              - FINGERPRINT_FLAT_BED_SCANNER
+              - FRAUDULENT_TRAVEL_DOCUMENT_DETECTION_SYSTEM
+            type: string
+        required:
+          - imageCaptureDeviceType
+        type: object
+      biometricMode:
+        enum:
+          - FACE
+          - FINGERPRINT_AND_FACE
+          - FINGERPRINT
+          - FUSION
+          - IRIS_SCAN
+        type: string
+      captureConsentFlag:
+        type: boolean
+      captureNonConsentComment:
+        type: string
+      captureReason:
+        type: string
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      imageNote:
+        type: string
+    type: object
+  biometricException:
+    properties:
+      exceptionComment:
+        type: string
+      exceptionType:
+        type: string
+    required:
+      - exceptionType
+    type: object
+  biometricImages:
+    type: object
+    description: 'The content of this has to be either facialImage or fingerprints, not both together'
+    properties:
+      facialImage:
+        $ref: '#/definitions/facialImage'
+      fingerprints:
+        $ref: '#/definitions/fingerprints'
+  businessCaptureType:
+    description: 'Business capture context code represents is the line of business the encounter is related to. It can cover a combination of Business Context Type, Business Programme, Business Event Type, Business Event Classification.'
+    properties:
+      businessCaptureTypeCode:
+        format: range from 0-94
+        type: integer
+      businessCaptureTypeText:
+        type: string
+    required:
+      - businessCaptureTypeCode
+    type: object
+  businessContext:
+    properties:
+      businessCategory:
+        type: string
+      businessContextType:
+        type: string
+      businessIdentifier:
+        $ref: '#/definitions/businessIdentifier'
+      businessRoles:
+        type: array
+        items:
+          $ref: '#/definitions/businessRole'
+      businessStatusCode:
+        type: string
+      businessStatusTimeStamp:
+        $ref: '#/definitions/dateTimeType'
+      officerFamilyName:
+        type: string
+      officerGivenName:
+        type: string
+      officerUserId:
+        type: string
+    required:
+      - businessIdentifier
+    type: object
+  businessIdentifier:
+    description: 'Business identifier is a transaction level identifier e.g. application, declaration, reference number, case, job, permission request, etc.'
+    properties:
+      businessId:
+        type: string
+      businessIdType:
+        type: string
+    required:
+      - businessId
+      - businessIdType
+    type: object
+  businessRole:
+    properties:
+      businessRoleStatusCode:
+        type: string
+      businessRoleStatusQualifierCode:
+        type: string
+      businessRoleType:
+        type: string
+    required:
+      - businessRoleType
+    type: object
+  contactMethod:
+    properties:
+      authorisedContactFlag:
+        type: boolean
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      email:
+        type: string
+      fax:
+        type: string
+      internet:
+        type: string
+      location:
+        properties:
+          addressLine1:
+            type: string
+          addressLine2:
+            type: string
+          addressLine3:
+            type: string
+          addressLine4:
+            type: string
+          locality:
+            type: string
+          stateOrTerritory:
+            type: string
+          postCode:
+            type: string
+          addressCountry:
+            $ref: '#/definitions/country'
+          pAFLocation:
+            properties:
+              buildingName:
+                type: string
+              buildingNumber:
+                type: string
+              country:
+                type: string
+              departmentName:
+                type: string
+              dependentLocalityName:
+                type: string
+              dependentThoroughfareDescriptor:
+                type: string
+              dependentThoroughfareName:
+                type: string
+              doubleDependentLocalityName:
+                type: string
+              organisationName:
+                type: string
+              postBox:
+                type: string
+              postCode:
+                type: string
+              postCodeType:
+                type: string
+              postTownName:
+                type: string
+              subBuildingName:
+                type: string
+              thoroughfareDescriptor:
+                type: string
+              thoroughfareName:
+                type: string
+            type: object
+          qASLocation:
+            properties:
+              aliasedLocality:
+                type: string
+              allotmentLot:
+                type: string
+              allotmentNumber:
+                type: string
+              buildingLevel:
+                type: string
+              buildingLevelNumber:
+                type: string
+              buildingLevelType:
+                type: string
+              buildingName1:
+                type: string
+              buildingName2:
+                type: string
+              buildingNumber:
+                type: string
+              country:
+                type: string
+              dPIDDID:
+                type: string
+              firstBuildingNumber:
+                type: string
+              flatUnit:
+                type: string
+              flatUnitNumber:
+                type: string
+              flatUnitType:
+                type: string
+              iSO3166Alpha2Code:
+                type: string
+              iSO3166Alpha3Code:
+                type: string
+              lastBuildingNumber:
+                type: string
+              locality:
+                type: string
+              postCode:
+                type: string
+              postalDelivery:
+                type: string
+              postalDeliveryNumber:
+                type: string
+              postalDeliveryType:
+                type: string
+              primaryPoint:
+                type: string
+              stateProvinceCode:
+                type: string
+              stateProvinceName:
+                type: string
+              street:
+                type: string
+              streetName:
+                type: string
+              streetType:
+                type: string
+              streetTypeSuffix:
+                type: string
+              subBuildingNumber:
+                type: string
+            type: object
+        required:
+          - addressLine1
+          - addressCountry
+        type: object
+      mobile:
+        type: string
+      preferredContactFlag:
+        type: boolean
+      sourceCode:
+        type: string
+      telephone:
+        type: string
+      telex:
+        type: string
+      usageCode:
+        type: string
+      verifiedFlag:
+        type: boolean
+    type: object
+  contextContainer:
+    properties:
+      containerDescription:
+        type: string
+      containerNumber:
+        type: string
+      containerTitle:
+        type: string
+      containerType:
+        type: string
+    required:
+      - containerNumber
+    type: object
+  country:
+    properties:
+      countryCode:
+        type: string
+      countryType:
+        description: Country code type
+        type: string
+    required:
+      - countryCode
+    type: object
+  createEncounterResponse:
+    properties:
+      encounterId:
+        description: Unique encounter resource Identifier
+        type: string
+      facialImageIdentifiers:
+        description: Face-image identifiers
+        items:
+          $ref: '#/definitions/facialImageIdentifier'
+        type: array
+    required:
+      - encounterId
+    type: object
+  dateTimeType:
+    format: date-time
+    type: string
+  dateType:
+    format: date
+    type: string
+  declaredCitizenship:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      country:
+        $ref: '#/definitions/country'
+    required:
+      - country
+    type: object
+  documentBiographic:
+    properties:
+      biographicUsageType:
+        type: string
+      biographic:
+        $ref: '#/definitions/biographic'
+      birthPlace:
+        type: string
+      birthStateOrProvince:
+        type: string
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      gender:
+        $ref: '#/definitions/genderSexType'
+      nameChange:
+        $ref: '#/definitions/nameChangeReason'
+      nameUsageType:
+        type: string
+      nationalIdentityNumber:
+        type: string
+      nationality:
+        type: string
+      relationshipStatus:
+        $ref: '#/definitions/relationshipStatusCode'
+    required:
+      - biographic
+    type: object
+  documentCertificate:
+    properties:
+      certificateNumber:
+        type: string
+      certificatePrintedDate:
+        $ref: '#/definitions/dateType'
+    required:
+      - certificateNumber
+    type: object
+  documentDetail:
+    properties:
+      additionalDocumentType:
+        type: string
+      biographicAcquisitionMethod:
+        $ref: '#/definitions/biographicAcquisitionMethod'
+      documentBiographics:
+        items:
+          $ref: '#/definitions/documentBiographic'
+        type: array
+      documentCertificates:
+        items:
+          $ref: '#/definitions/documentCertificate'
+        type: array
+      documentCertificationType:
+        enum:
+          - CERTIFIED_COPY
+          - COPY
+          - ORIGINAL
+          - OTHER
+        type: string
+      documentEvents:
+        items:
+          $ref: '#/definitions/documentEvent'
+        type: array
+      documentNumber:
+        type: string
+      documentStatusCode:
+        type: string
+      documentType:
+        type: string
+      documentUsageType:
+        type: string
+      documentUsageMessageType:
+        $ref: '#/definitions/documentUsageMessageType'
+      documentVerifications:
+        items:
+          $ref: '#/definitions/documentVerification'
+        type: array
+      documentVersion:
+        type: string
+      expiryDate:
+        $ref: '#/definitions/dateType'
+      issueDate:
+        $ref: '#/definitions/dateType'
+      issuerName:
+        type: string
+      issuingCountry:
+        $ref: '#/definitions/country'
+      issuingStateProvince:
+        type: string
+      photoIncludedFlag:
+        type: boolean
+      scanReference:
+        type: string
+      translationFlag:
+        type: boolean
+      translationOrganisationCode:
+        type: string
+    required:
+      - documentNumber
+      - documentType
+      - documentStatusCode
+      - issuingCountry
+      - issueDate
+      - expiryDate
+    type: object
+  documentEvent:
+    properties:
+      eventDate:
+        $ref: '#/definitions/dateType'
+      eventNote:
+        type: string
+      eventPlace:
+        type: string
+      eventReason:
+        $ref: '#/definitions/reason'
+      eventType:
+        type: string
+    required:
+      - eventType
+    type: object
+  documentImage:
+    properties:
+      imageCode:
+        type: string
+      imageData:
+        $ref: '#/definitions/imageData'
+      imageFormatType:
+        type: string
+      imageIdentifier:
+        $ref: '#/definitions/identifier'
+      inErrorFlag:
+        type: boolean
+      photoIncludedFlag:
+        type: boolean
+      registrationMethod:
+        type: string
+      thirdPartyReason:
+        type: string
+    type: object
+  documentUsageMessageType:
+    properties:
+      additionalDocumentType:
+        type: string
+      cardColour:
+        type: string
+      individualReferenceNumber:
+        type: string
+      marriageCertificate:
+        properties:
+          certificateNumber:
+            type: string
+          certificatePrintedDate:
+            $ref: '#/definitions/dateType'
+          documentCertificationType:
+            type: string
+          marriageDate:
+            $ref: '#/definitions/dateType'
+          marriagePlace:
+            type: string
+        required:
+          - certificateNumber
+          - certificatePrintedDate
+          - certificationType
+          - marriageDate
+          - marriagePlace
+        type: object
+      nationalIdNumber:
+        type: string
+      nationalityOfTheBearer:
+        type: string
+      photographIncludedFlag:
+        type: string
+      previousFamilyName:
+        type: string
+      previousGivenName:
+        type: string
+      reasonforNameChange:
+        type: string
+      registrationDate:
+        type: string
+      registrationMethod:
+        type: string
+      scanReference:
+        type: string
+      source:
+        type: string
+      spouseFamilyName:
+        type: string
+      spouseGivenName:
+        type: string
+      thirdPartyReason:
+        type: string
+      translationFlag:
+        type: string
+      translationOrganisation:
+        type: string
+      translatorDetails:
+        type: string
+    type: object
+  documentVerification:
+    properties:
+      referralStatus:
+        type: string
+      verficationActivityType:
+        type: string
+      verficationIdentifier:
+        $ref: '#/definitions/identifier'
+      verificationActivities:
+        items:
+          properties:
+            activityNote:
+              type: string
+            activityOrder:
+              type: string
+            activityOutcome:
+              type: string
+            activityTimeStamp:
+              $ref: '#/definitions/dateTimeType'
+            officerName:
+              type: string
+          type: object
+        type: array
+    required:
+      - verficationActivityType
+    type: object
+  encounterDetails:
+    description: Encounter core details
+    properties:
+      businessCaptureType:
+        $ref: '#/definitions/businessCaptureType'
+      encounterLocation:
+        type: string
+        description: Location where an encounter took place.
+      encounterTimeStamp:
+        description: Date and time when the encounter with the client completed and was ready to send to Identity to register.
+        $ref: '#/definitions/dateTimeType'
+      partySystemIdentifier:
+        $ref: '#/definitions/partySystemIdentifier'
+      sourceSystem:
+        type: string
+        description: The system that provided the encounter.
+      sourceSystemTimeStamp:
+        description: Source System date and time when the encounter was sent to Identity to register.
+        $ref: '#/definitions/dateTimeType'
+      sourceSystemUserId:
+        type: string
+        description: Source system UserId for the person or officer associated with the encounter.
+      supervisionMode:
+        $ref: '#/definitions/supervisionMode'
+    required:
+      - businessCaptureType
+      - encounterTimeStamp
+      - partySystemIdentifier
+      - sourceSystem
+      - sourceSystemTimeStamp
+    type: object
+  encounterPatchRequest:
+    description: Encounter details that can be added to an existing encounter.
+    properties:
+      identifiers:
+        items:
+          properties:
+            id:
+              description: The identifier value to be added to the encounter
+              type: string
+            idType:
+              description: The identifier type
+              type: string
+          required:
+            - id
+            - idType
+          type: object
+        type: array
+  encounterRegisterDetails:
+    description: Encounter details and control fields to include when posting or registering an encounter with Identity.
+    properties:
+      encounterDetails:
+        $ref: '#/definitions/encounterDetails'
+      agencyName:
+        type: string
+        description: Name of Agency the encounter provider is associated with.
+      biometricExternalMatchCriteria:
+        description: Option to provide one or more Biometric External Match Criteria
+        type: array
+        items:
+          type: object
+          properties:
+            matchSystem:
+              type: string
+      matchBiometricsFlag:
+        type: boolean
+        default: 'true'
+        description: A flag to perform biometric matching. Most consumers are to leave this set to true regardless of whether biometrics are present or not; specific consumers will set this to be false.
+      targetPartySystemIdentifier:
+        $ref: '#/definitions/partySystemIdentifier'
+      watchlistCheckFlag:
+        default: 'false'
+        description: 'A flag to perform watchlist checking. Most consumers are to leave this set to true, specific consumers will set this to be false.'
+        type: boolean
+      watchlistEnrolment:
+        $ref: '#/definitions/watchlistEnrolment'
+    required:
+      - agencyName
+      - matchBiometricsFlag
+      - watchlistCheckFlag
+      - watchlistEnrolment
+  encounterRequest:
+    description: Details to be registered or posted when recording an encounter
+    properties:
+      encounterRegisterDetails:
+        $ref: '#/definitions/encounterRegisterDetails'
+      personDetails:
+        $ref: '#/definitions/personEncounterRequest'
+    required:
+      - encounterRegisterDetails
+      - personDetails
+    type: object
+  errors:
+    description: Container for all error related data
+    properties:
+      errors:
+        items:
+          description: 'standard error response structure as per jsonapi.org/format/#errors'
+          properties:
+            code:
+              description: A provider-specific or enterprise defined error code. Codes must be in uppercase.
+              type: string
+            detail:
+              description: A provider-specific or enterprise defined error message
+              type: string
+            id:
+              description: 'Unique identifier for the error occurrence, to provide traceability in application logs.'
+              type: string
+            source:
+              description: An object containing references to the source of the error.
+              properties:
+                location:
+                  description: Describes the location of the data which the message is related to.
+                  type: string
+                parameter:
+                  description: The parameter name which the message relates to. The message object should container either the pointer or parameter property â€“ not both.
+                  type: string
+                pointer:
+                  description: 'A JSON pointer which describes which property in the request object the message relates to. For more details on JSON pointers see RFC6901: https://tools.ietf.org/html/rfc6901'
+                  type: string
+              type: object
+          type: object
+        type: array
+    required:
+      - errors
+    type: object
+  ethnicity:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      ethnicityType:
+        type: string
+    required:
+      - ethnicityType
+    type: object
+  facialImage:
+    properties:
+      biometricException:
+        $ref: '#/definitions/biometricException'
+      collectionAttemptCount:
+        type: string
+      compressionAlgorithm:
+        type: string
+      facialImageIdentifier:
+        $ref: '#/definitions/facialImageIdentifier'
+      facialImageType:
+        enum:
+          - THUMBNAIL
+          - ORIGINAL
+          - FORMATTED
+          - FACIAL
+          - FINGERPRINT
+          - IRIS_SCAN
+          - AUDIO_VIDEO_RECORDING
+          - UNKNOWN
+          - DOCUMENT_SCAN
+          - DOCUMENT_IMAGE
+          - CHIP_READ
+        type: string
+      horizontalLineLength:
+        type: string
+      imageData:
+        $ref: '#/definitions/imageData'
+      verticalLineLength:
+        type: string
+    type: object
+  facialImageIdentifier:
+    properties:
+      facialImageId:
+        type: string
+      facialImageIdType:
+        type: string
+    type: object
+  fingerprint:
+    properties:
+      biometricException:
+        $ref: '#/definitions/biometricException'
+      collectionAttemptCount:
+        type: string
+      compressionAlgorithm:
+        type: string
+      fingerIndex:
+        type: string
+      horizontalLineLength:
+        type: string
+      imageData:
+        $ref: '#/definitions/imageData'
+      verticalLineLength:
+        type: string
+    type: object
+  fingerprints:
+    items:
+      $ref: '#/definitions/fingerprint'
+    type: array
+  genderSexType:
+    description: 'Gender and sex types are Female, Male and Other for other, not stated or unknown.'
+    enum:
+      - FEMALE
+      - MALE
+      - OTHER
+    type: string
+  identifier:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      id:
+        type: string
+      idType:
+        type: string
+    required:
+      - idType
+      - id
+    type: object
+  imageData:
+    description: Base64-encoded image data
+    format: byte
+    type: string
+  language:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      languageCode:
+        type: string
+      preferredLanguageFlag:
+        type: boolean
+    required:
+      - languageCode
+    type: object
+  nameChangeReason:
+    properties:
+      reasonCode:
+        type: string
+        enum:
+          - ADOPTION
+          - ALTERNATIVE_SPELLING
+          - ANGLICISATION_OF_NAME
+          - BIRTH
+          - CULTURAL_ORIGINS
+          - DEED_POLL
+          - DEPARTMENTAL_ERROR
+          - DIVORCE
+          - GENDER_CHANGE
+          - MAIDEN_NAME
+          - MARRIAGE
+          - NAME_IN_FULL
+          - NICKNAME
+          - OTHER
+          - PREFERRED_NAME
+          - PREFIX_AND/OR_SUFFIX
+          - RELIGIOUS_NAME
+          - REORDERING_OF_NAME
+          - SPLIT_OR_JOINING_NAME
+          - TRANSLITERATION
+          - TRUNCATION
+    required:
+      - reasonCode
+    type: object
+  partySystemIdentifier:
+    description: Types of person or party level system identifiers that this service will accept.
+    properties:
+      partySystemId:
+        type: string
+      partySystemIdType:
+        type: string
+    required:
+      - partySystemIdType
+      - partySystemId
+    type: object
+  personBiographic:
+    description: A person's biographics details
+    properties:
+      biographic:
+        $ref: '#/definitions/biographic'
+      biographicAcquisitionMethod:
+        $ref: '#/definitions/biographicAcquisitionMethod'
+      birthPlace:
+        type: string
+      birthStateOrProvince:
+        type: string
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      nameChange:
+        $ref: '#/definitions/nameChangeReason'
+      nameUsageType:
+        type: string
+    required:
+      - biographic
+    type: object
+  personBiometric:
+    properties:
+      biometricDetail:
+        $ref: '#/definitions/biometricDetail'
+      biometricImages:
+        $ref: '#/definitions/biometricImages'
+    required:
+      - biometricImages
+    type: object
+  personData:
+    description: 'Almost all of an encounter''s details, excluding facial-images and document-images which must be requested separately'
+    properties:
+      associations:
+        description: Person associations details
+        items:
+          $ref: '#/definitions/association'
+        type: array
+      biographics:
+        description: Encounter biographics details
+        items:
+          $ref: '#/definitions/personBiographic'
+        type: array
+      biometrics:
+        description: Encounter biometrics details about facial-images or fingerprint-images
+        items:
+          $ref: '#/definitions/biometricDetail'
+        type: array
+      businessContexts:
+        description: Encounter business-contexts details
+        items:
+          $ref: '#/definitions/businessContext'
+        type: array
+      contactMethods:
+        description: Encounter contact-methods details
+        items:
+          $ref: '#/definitions/contactMethod'
+        type: array
+      contextContainers:
+        description: Encounter context-containers details
+        items:
+          $ref: '#/definitions/contextContainer'
+        type: array
+      declaredCitizenships:
+        description: Encounter declared-citizenships details
+        items:
+          $ref: '#/definitions/declaredCitizenship'
+        type: array
+      documents:
+        description: Encounter documents details
+        items:
+          $ref: '#/definitions/documentDetail'
+        type: array
+      encounterDetails:
+        description: Encounter core details
+        items:
+          $ref: '#/definitions/encounterDetails'
+        type: array
+      ethnicities:
+        description: Encounter ethnicities details
+        items:
+          $ref: '#/definitions/ethnicity'
+        type: array
+      identifiers:
+        description: Identifiers recorded with an encounter
+        items:
+          $ref: '#/definitions/identifier'
+        type: array
+      languages:
+        description: Encounter languages details
+        items:
+          $ref: '#/definitions/language'
+        type: array
+      relationshipStatuses:
+        description: Encounter relationship-statuses details
+        items:
+          $ref: '#/definitions/relationshipStatus'
+        type: array
+      religions:
+        description: Encounter religions details
+        items:
+          $ref: '#/definitions/religion'
+        type: array
+      residenceCountries:
+        description: Encounter residence countries details
+        items:
+          $ref: '#/definitions/residenceCountry'
+        type: array
+    type: object
+  personEncounterDetails:
+    description: Encounter core details
+    properties:
+      encounterDetails:
+        $ref: '#/definitions/encounterDetails'
+      biographics:
+        description: Encounter biographics details
+        items:
+          $ref: '#/definitions/biographic'
+        type: array
+      identifiers:
+        description: Identifiers recorded with an encounter
+        items:
+          $ref: '#/definitions/identifier'
+        type: array
+      links:
+        properties:
+          biographics:
+            description: Link to the encounter's biographics details
+            type: string
+          biometrics:
+            description: Link to the encounter's biometrics details
+            type: string
+          businessContexts:
+            description: Link to the encounter's business-contexts details
+            type: string
+          contactMethods:
+            description: Link to the encounter's contact-methods details
+            type: string
+          documentImages:
+            description: Link to the encounter's document-images
+            type: string
+          documents:
+            description: Link to the encounter's document details
+            type: string
+          facialImages:
+            description: Link to the encounter's facial-images
+            type: string
+          self:
+            description: Link to the current encounter's resource
+            type: string
+        type: object
+    type: object
+  personEncounterRequest:
+    description: These are the encounter details (including images) that can be posted with an encounter
+    properties:
+      biographics:
+        description: Encounter biographics details
+        items:
+          $ref: '#/definitions/personBiographic'
+        type: array
+      biometrics:
+        description: 'Encounter biometrics, can be facial-images and or fingerprint-images'
+        items:
+          $ref: '#/definitions/personBiometric'
+        type: array
+      businessContexts:
+        description: Encounter business-contexts details
+        items:
+          $ref: '#/definitions/businessContext'
+        type: array
+      contactMethods:
+        description: Encounter contact-methods details
+        items:
+          $ref: '#/definitions/contactMethod'
+        type: array
+      contextContainers:
+        description: Encounter context-containers details
+        items:
+          $ref: '#/definitions/contextContainer'
+        type: array
+      declaredCitizenships:
+        description: Encounter declared-citizenships details
+        items:
+          $ref: '#/definitions/declaredCitizenship'
+        type: array
+      documents:
+        description: Encounter documents details and images
+        items:
+          $ref: '#/definitions/registerDocument'
+        type: array
+      ethnicities:
+        description: Encounter ethnicities details
+        items:
+          $ref: '#/definitions/ethnicity'
+        type: array
+      languages:
+        description: Encounter languages details
+        items:
+          $ref: '#/definitions/language'
+        type: array
+      relationshipStatuses:
+        description: Encounter relationship-statuses details
+        items:
+          $ref: '#/definitions/relationshipStatus'
+        type: array
+      religions:
+        description: Encounter religions details
+        items:
+          $ref: '#/definitions/religion'
+        type: array
+      residenceCountries:
+        description: Encounter residence-countries details
+        items:
+          $ref: '#/definitions/residenceCountry'
+        type: array
+    required:
+      - biographics
+    type: object
+  reason:
+    properties:
+      reasonCode:
+        type: string
+      reasonText:
+        type: string
+    required:
+      - reasonCode
+    type: object
+  registerDocument:
+    properties:
+      documentDetails:
+        $ref: '#/definitions/documentDetail'
+      documentImages:
+        items:
+          $ref: '#/definitions/documentImage'
+        type: array
+    required:
+      - documentDetails
+    type: object
+  relationshipStatus:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      relationshipStatusCode:
+        $ref: '#/definitions/relationshipStatusCode'
+    required:
+      - relationshipStatusCode
+    type: object
+  relationshipStatusCode:
+    description: A person's relationship-status details.
+    enum:
+      - DEFACTO_PARTNER
+      - DIVORCED
+      - ENGAGED
+      - MARRIED
+      - NEVER_MARRIED/DEFACTO
+      - NOT_STATED
+      - SEPARATED
+      - WIDOWED
+    type: string
+  religion:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      religionType:
+        type: string
+    required:
+      - religionType
+    type: object
+  residenceCountry:
+    properties:
+      cessationDate:
+        $ref: '#/definitions/dateType'
+      commencementDate:
+        $ref: '#/definitions/dateType'
+      country:
+        $ref: '#/definitions/country'
+      residencyCurrencyCode:
+        type: string
+    required:
+      - country
+    type: object
+  retrieveEncounterResponse:
+    properties:
+      encounterId:
+        description: This is the unique encounter resource id
+        type: string
+      personId:
+        description: This is the identifier for the person that this encounter is linked to
+        type: string
+      encounterStatus:
+        description: This is the current status of the encounter
+        enum:
+          - PENDING
+          - IN_DOUBT
+          - RESOLVED
+          - ICT_RESOLUTION
+          - OF_CONCERN
+          - IMPOSTER
+          - DELETED
+        type: string
+      personData:
+        $ref: '#/definitions/personData'
+      personEncounterDetails:
+        $ref: '#/definitions/personEncounterDetails'
+    required:
+      - encounterId
+    type: object
+  supervisionMode:
+    description: Level supervision surrounding the capture of biometrics or document images.
+    enum:
+      - COMMERCIAL_NON-SDP
+      - COMMERCIAL_SDP
+      - GOVERNMENT_SDP
+      - NOT_SPECIFIED
+      - UNSUPERVISED
+      - DEPARTMENT
+    type: string
+  watchlistEnrolment:
+    description: 'A flag to enrol a person into the watchlist. Most consumers are to leave this set to false, specific consumers will set this to true.'
+    properties:
+      effectiveFromDateTime:
+        $ref: '#/definitions/dateTimeType'
+      effectiveToDateTime:
+        $ref: '#/definitions/dateTimeType'
+      watchlistEnrolmentFlag:
+        default: 'false'
+        type: boolean
+    required:
+      - watchlistEnrolmentFlag
+    type: object
+  eventResponse:
+    type: object
+    properties:
+      data:
+        type: array
+        items:
+          $ref: '#/definitions/eventSchema'
+  eventSchema:
+    type: object
+    additionalProperties: false
+    description: EMP Resource Lifecycle State Change Event Notification Schema
+    required:
+      - id
+      - source
+      - specversion
+      - type
+    properties:
+      id:
+        description: Identifies the event
+        type: string
+        minLength: 1
+        example: "A234-1234-1234"
+      source:
+        description: Identifies the context in which an event happened
+        type: string
+        format: uri-reference
+        minLength: 1
+        example: "urn:uuid:6e8bc430-9c3a-11d9-9669-0800200c9a66"
+      specversion:
+        description: The version of the CloudEvents specification which the event uses
+        type: string
+        minLength: 1
+        pattern: "^1\\.0$"
+        example: "1.0"
+      type:
+        description: Describes the type of event related to the originating occurrence
+        type: string
+        minLength: 1
+        pattern: "^au\\.gov\\.homeaffairs\\.enterprise\\.events\\.event-notifications\\.resource-lifecycle-state-transition$"
+        example: "com.github.pull_request.opened"
+      datacontenttype:
+        description: Content type of the data value. Must adhere to RFC 2046 format
+        type: string
+        minLength: 1
+        pattern: "^application/json$"
+      dataschema:
+        description: Identifies the schema that data adheres to
+        type: string
+        format: uri
+        minLength: 1
+        pattern: "^#$"
+      subject:
+        description: Describes the subject of the event in the context of the event producer (identified by source)
+        type: string
+        format: uri-reference
+        minLength: 1
+        example: "mynewfile.jpg"
+      time:
+        description: Timestamp of when the occurrence happened. Must adhere to RFC 3339
+        type: string
+        format: date-time
+        minLength: 1
+        example: "2018-04-05T17:31:00Z"
+      data:
+        description: The event payload.
+        $ref: '#/definitions/x_data_def'
+        example:
+          state_to: "Pending"
+          transition_reason: "RequestReceived"
+      data_base64:
+        description: Base64 encoded event payload. Must adhere to RFC4648
+        type: string
+        #contentEncoding: Base64
+        example: "dGhlIG1pdG9jaG9uZHJpYSBpcyB0aGUgcG93ZXJob3VzZSBvZiB0aGUgY2VsbA=="
+      dataref:
+        description: |
+          A reference to a location where the event payload is stored.
+          The location MAY not be accessible without further information (e.g. a pre-shared secret).
+          See https://github.com/cloudevents/spec/blob/master/extensions/dataref.md#dataref
+        type: string
+        format: uri-reference
+        minLength: 1
+      sequence:
+        description: |
+          Value expressing the relative order of the event.
+          This enables interpretation of data supercedence.
+          See https://github.com/cloudevents/spec/blob/master/extensions/sequence.md#sequence-1
+        type: string
+        minLength: 1
+      sequencetype:
+        description: |
+          Specifies the semantics of the sequence attribute.
+          See https://github.com/cloudevents/spec/blob/master/extensions/sequence.md#sequencetype
+        type: string
+        enum:
+          - Integer
+      traceparent:
+        description: |
+          Contains a version, trace ID, span ID, and trace options.
+          See https://github.com/cloudevents/spec/blob/master/extensions/distributed-tracing.md#traceparent
+        type: string
+        minLength: 1
+      tracestate:
+        description: |
+          A comma-delimited list of key-value pairs.
+          See https://github.com/cloudevents/spec/blob/master/extensions/distributed-tracing.md#tracestate
+        type: string
+        minLength: 1
+      xprotectivemarking:
+        description: |
+          The modified regular expression syntax of the protective marking.
+          See Annex B #20 of https://www.protectivesecurity.gov.au/sites/default/files/2019-09/infosec08-sensitive-and-classified-information-email.pdf
+        type: string
+        minLength: 1
+        example: "VER=2018.1, NS=gov.au, SEC=OFFICIAL, ORIGIN=neville.jones@entity.gov.au"
+      xaccessattributes:
+        description: |
+          ABAC/RBAC object attributes that drives access control enforcement.
+          See https://nvlpubs.nist.gov/nistpubs/specialpublications/nist.sp.800-162.pdf
+        type: string
+        minLength: 1
+        example: "TBD"
+      xcorrelationid:
+        description: Identifier that is used as a reference to a particular transaction or event chain.
+        type: string
+        minLength: 1
+  x_data_def:
+    type: object
+    additionalProperties: false
+    required:
+      - state_to
+      - transition_trigger
+    properties:
+      state_from:
+        type: string
+        minLength: 1
+      state_to:
+        type: string
+        minLength: 1
+      transition_trigger:
+        type: string
+        minLength: 1
+parameters:
+  correlation-id:
+    description: Request correlation id
+    in: header
+    name: correlation-id
+    required: false
+    type: string
+  message-id:
+    description: Request message id
+    in: header
+    name: message-id
+    required: false
+    type: string
+  request-timestamp:
+    description: Requesting system timestamp
+    format: date-time
+    in: header
+    name: request-timestamp
+    required: true
+    type: string
+  system-id:
+    description: Request system id or name
+    in: header
+    name: system-id
+    required: true
+    type: string
+  transaction-id:
+    description: Request transaction id
+    format: uuid
+    in: header
+    name: transaction-id
+    required: true
+    type: string
+  user-id:
+    description: Requesting user id
+    in: header
+    name: user-id
+    required: false
+    type: string
