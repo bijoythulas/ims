@@ -17,7 +17,7 @@ public class PayloadService {
   @Autowired
   private PayloadRepository payloadRepository;
 
-  public <T> void PersistPayload(
+  public <T> Payload PersistPayload(
     Integer flowInstanceId,
     PayloadType payloadType,
     T payLoadClassInstance
@@ -29,10 +29,11 @@ public class PayloadService {
       objectMapper.writeValueAsString(payLoadClassInstance)
     );
     payloadRepository.save(payload);
+    return payload;
   }
 
   /**
-   * 
+   *
    * @param <T>
    * @param flowInstanceId
    * @param payloadType
@@ -51,6 +52,11 @@ public class PayloadService {
       payloadType
     );
 
+    return objectMapper.readValue(payload.getPayload(), target);
+  }
+
+  public <T> T RetrievePayLoadById(Integer id, Class<T> target) throws Exception {
+    Payload payload = payloadRepository.findById(id).get();
     return objectMapper.readValue(payload.getPayload(), target);
   }
 }

@@ -7,7 +7,18 @@ get  http://@{{hostname}}/GetEncounterById/1
 ### id url test
 get  http://@{{hostname}}/GetEncounterMatchCountById/1
 
+### id01
 
+POST http://@{{hostname}}/ID01 
+content-type: application/json
+
+{
+"encounterRegisterDetails":{"agencyName":"dimia","matchBiometricsFlag":true}
+
+}
+
+### retrieve saved encounter details object attribute
+GET  http://@{{hostname}}/GetEncounterAgency/2
 
 
 ### register encounter
@@ -105,8 +116,7 @@ get http://localhost:8081/h2
 ###  swagger
 get   http://localhost:8081/swagger-ui/
 
-http://localhost:8081/v3/api-docs/
-http://localhost:8081/api-docs.yaml 
+
 ##solr
 get http://localhost:8983
 

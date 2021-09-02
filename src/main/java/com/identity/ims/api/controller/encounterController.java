@@ -1,9 +1,11 @@
 package com.identity.ims.api.controller;
 
 import com.identity.ims.api.Entity.Encounter;
-
+import com.identity.ims.api.Entity.ApiModel.BiometricDetail;
+import com.identity.ims.api.Entity.ApiModel.EncounterRequest;
 import com.identity.ims.api.dto.ShortsDto;
 import com.identity.ims.api.services.EncounterService;
+import com.identity.ims.api.services.PayloadService;
 import com.identity.ims.api.services.SolrService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,23 +23,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class encounterController {
 
   @Autowired
-  private EncounterService service;
+  private EncounterService encounterService;
 
   @Autowired
   EntityManager entityManager;
 
+  @Autowired
+  PayloadService payloadService; 
+  
   private final SolrService solrService;
 
   @PostMapping("/registerEncounter")
   @ApiOperation(value = "Call this to register encounter", httpMethod = "POST")
   public Encounter registerEncounter(@Valid @RequestBody Encounter encounter) {
-    return service.registerEncounter(encounter);
+    return encounterService.registerEncounter(encounter);
+    
   }
 
   @RequestMapping("/GetEncounterById/{id}")
   @ApiOperation(value = "fetch encounter by id", httpMethod = "GET")
   public Encounter GetEncounterById(@PathVariable int id) {
-    return service.getEncounterById(id);
+    return encounterService.getEncounterById(id);
   }
 
   @RequestMapping("/GetEncounterMatchCountById/{id}")
@@ -63,13 +69,16 @@ public class encounterController {
 	}
 */
 
-  @RequestMapping("/GetEncounterMatches/{id}")
-  @ApiOperation(value = "get encounter matches by id", httpMethod = "GET")
-  public List<ShortsDto> GetEncounterMatches(@PathVariable int id) {
-    return service.GetMatchesById(id);
+  @RequestMapping("/GetEncounterAgency/{id}")
+  @ApiOperation(value = "demostration to retrieve json request object that came from clients and return a attribute value", httpMethod = "GET")
+  public String GetEncounterMatches(@PathVariable Integer id) throws Exception {
+     return payloadService.RetrievePayLoadById(id, EncounterRequest.class).getEncounterRegisterDetails().getAgencyName();
   }
 
-  
+  @PostMapping("/ID01")
+  public Integer ID01(@Valid @RequestBody EncounterRequest encounterRequest) throws Exception {
+    return encounterService.ID01(encounterRequest);
+  }
 
 
 }

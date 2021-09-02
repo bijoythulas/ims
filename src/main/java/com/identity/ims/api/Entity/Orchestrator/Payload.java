@@ -21,6 +21,8 @@ import lombok.*;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Payload extends BaseEntity {
 

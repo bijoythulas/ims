@@ -11,23 +11,26 @@ import lombok.*;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@NoArgsConstructor
+
 public class FlowInstance extends BaseEntity {
     
     /**encounter id passed back to id01 callers is saved here
      * 
      */
+    @NonNull
     private Integer encounterId;
 
     /**this indicates at what stage of the orchestration stage the flow instance has reached
      * 
      */
+    @NonNull
     @Enumerated(EnumType.STRING)
     private FlowInstanceStatusType flowInstanceStatusCode;
 
     /** orchestrator will only process the encounters created on api instance 
      * this enable horizontal scaling of encounter processing     * 
      */
+    @NonNull
     private String processingServerName;
 
     

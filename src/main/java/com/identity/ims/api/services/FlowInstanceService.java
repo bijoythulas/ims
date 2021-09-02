@@ -17,6 +17,12 @@ public class FlowInstanceService {
     return flowInstanceRepository.findOpenFlowInstances();
   }
 
+  public FlowInstance Save(FlowInstance flowInstance)
+  {
+    return flowInstanceRepository.save(flowInstance);
+
+  }
+
   void MoveFlowToStage(FlowInstance flowInstance,FlowInstanceStatusType flowInstanceStatusType)
   {
     flowInstance.setFlowInstanceStatusCode(flowInstanceStatusType);

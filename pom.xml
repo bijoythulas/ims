@@ -24,13 +24,14 @@
 	</properties>
 	<dependencies>
 
+<!--
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.5.10</version>
 		</dependency>
 
-
+-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -84,11 +85,13 @@
     		<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
+
 		<dependency>
     		<groupId>io.springfox</groupId>
     		<artifactId>springfox-boot-starter</artifactId>
 			<version>3.0.0</version>
 		</dependency>
+
 	
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -181,7 +184,7 @@
         </execution>
     </executions>
 </plugin>
-
+<!--
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -195,20 +198,22 @@
                 <inputSpec>
                   ${project.basedir}/src/main/resources/encounters-v1-swagger2.yaml
                 </inputSpec>
-                <generatorName>spring</generatorName>
+                <generatorName>jaxrs-spec</generatorName>
                 <apiPackage>com.identity.ims.api</apiPackage>
                 <modelPackage>com.identity.ims.api.Entity.ApiModel</modelPackage>
                 <supportingFilesToGenerate>
                   ApiUtil.java
                 </supportingFilesToGenerate>
                 <configOptions>
-                    <delegatePattern>true</delegatePattern>
-					<interfaceOnly>true</interfaceOnly>
+                  <interfaceOnly>true</interfaceOnly>
+					<useBeanValidation>false </useBeanValidation>
+					<dateLibrary>java8</dateLibrary>
                 </configOptions>
             </configuration>
         </execution>
     </executions>
 </plugin>
+-->
 		</plugins>
 	</build>
 
