@@ -1,144 +1,99 @@
 package com.identity.ims.api.utils.exception;
 
-
-
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.Objects;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.aspectj.weaver.tools.Trace;
 import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
 
 @ControllerAdvice
 class ControllerAdviceErrorHandling {
 
-  
+  public static final String TRACE = "trace";
 
-
-  @ExceptionHandler(Exception.class)
-public ResponseEntity<Map<String, String>> handleException(
-        Exception e) throws IOException {
-    Map<String, String> errorResponse = new HashMap<>();
-    errorResponse.put("message", e.getLocalizedMessage());
-    errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.toString());
-
-    System.out.println("globalExceptionHandling");
-    return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-}
-
-@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-public ResponseEntity<Map<String, String>> handleException(
-        HttpRequestMethodNotSupportedException e) throws IOException {
-    Map<String, String> errorResponse = new HashMap<>();
-    String provided = e.getMethod();
-    List<String> supported = Arrays.asList(e.getSupportedMethods());
-
-    String error = provided + " is not one of the supported Http Methods (" +
-            String.join(", ", supported) + ")";
-    errorResponse.put("error", error);
-    errorResponse.put("message", e.getLocalizedMessage());
-    errorResponse.put("status", HttpStatus.METHOD_NOT_ALLOWED.toString());
-
-    return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
-}
-
-
-/**
- * called when exception raised when request does not contain nonnull json elements
- */
- @ExceptionHandler(HttpMessageNotReadableException.class)
-public ResponseEntity<Map<String, String>> handleException(
-        HttpMessageNotReadableException e) throws IOException {
-
-    Map<String, String> errorResponse = new HashMap<>();
-    errorResponse.put("message", e.getLocalizedMessage());
-    errorResponse.put("status", HttpStatus.BAD_REQUEST.toString());
-
-    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-}
+  @Value("${com.identity.ims.api.trace:false}")
+  private boolean printStackTrace;
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  @ResponseBody
-  ValidationFailedResponse onMethodArgumentNotValidException(
-    MethodArgumentNotValidException e
-  ) {
-    System.out.println("onMethodArgumentNotValidException");
-      
-    ValidationFailedResponse error = new ValidationFailedResponse();
-    for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-      error
-        .getViolations()
-        .add(
-          new ViolationErrors(
-            fieldError.getField(),
-            fieldError.getDefaultMessage()
-          )
-        );
-    }
-    return error;
-  }
-
-  
-@ExceptionHandler(ConstraintViolationException.class)
-@ResponseStatus(HttpStatus.BAD_REQUEST)
-@ResponseBody
-ValidationFailedResponse onConstraintValidationException(
-  ConstraintViolationException e
-) {
-  System.out.println("onConstraintValidationException");
-
-  
-  ValidationFailedResponse error = new ValidationFailedResponse();
-  
-  error.getViolations().add(
-  new ViolationErrors(
-          e.getConstraintName(),
-          e.getMessage()
-        ));
-
-  return error;
-}
-
-  
-/*
-
-@ExceptionHandler(ConversionFailedException.class)
-  @ResponseStatus(HttpStatus.BAD_REQUEST)
-  public String handleConflict(RuntimeException ex) {
-    System.out.println("ConversionFailedException");
-      return "Conversion failed:" + ex.getMessage();
-
-  }
-
-  @ExceptionHandler(ResourceNotFoundException.class)
-  @ResponseStatus(value = HttpStatus.NOT_FOUND)
-  public String resourceNotFoundHandling(
-    ResourceNotFoundException exception,
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
+    MethodArgumentNotValidException ex,
     WebRequest request
   ) {
-    Logger logger = LoggerFactory.getLogger(ControllerAdviceErrorHandling.class);
-    logger.info("enter resourceNotFoundHandling");
+    ErrorResponse errorResponse = new ErrorResponse(
+      HttpStatus.UNPROCESSABLE_ENTITY.value(),
+      "Validation error. Check 'errors' field for details."
+    );
 
-    return exception.getMessage();
+    for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+      errorResponse.addValidationError(
+        fieldError.getField(),
+        fieldError.getDefaultMessage()
+      );
+    }
+    return ResponseEntity.unprocessableEntity().body(errorResponse);
   }
 
- 
+  @ExceptionHandler(Exception.class)
+  @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+  public ResponseEntity<ErrorResponse> handleAllUncaughtException(
+    Exception exception,
+    WebRequest request
+  ) {
+    return buildErrorResponse(
+      exception,
+      "Unknown error occurred",
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      request
+    );
+  }
 
+  @ExceptionHandler(ConstraintViolationException.class)
+  @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+  public ResponseEntity<ErrorResponse> onConstraintValidationException(
+    ConstraintViolationException e
+  ) {
+    ErrorResponse errorResponse = new ErrorResponse(
+      HttpStatus.UNPROCESSABLE_ENTITY.value(),
+      "Constraint violation. Check 'errors' field for details."
+    );
+    errorResponse.addValidationError(e.getConstraintName(), e.getMessage());
 
-  
+    return ResponseEntity.unprocessableEntity().body(errorResponse);
+  }
 
-  */
+  private ResponseEntity<ErrorResponse> buildErrorResponse(
+    Exception exception,
+    String message,
+    HttpStatus httpStatus,
+    WebRequest request
+  ) {
+    ErrorResponse errorResponse = new ErrorResponse(
+      httpStatus.value(),
+      exception.getMessage()
+    );
+
+    if (printStackTrace && isTraceOn(request)) {
+      errorResponse.setStackTrace(ExceptionUtils.getStackTrace(exception));
+    }
+    
+    return ResponseEntity.status(httpStatus).body(errorResponse);
+  }
+
+  private boolean isTraceOn(WebRequest request) {
+    String[] value = request.getParameterValues(TRACE);
+    return (
+      Objects.nonNull(value) &&
+      value.length > 0 &&
+      value[0].contentEquals("true")
+    );
+  }
 }

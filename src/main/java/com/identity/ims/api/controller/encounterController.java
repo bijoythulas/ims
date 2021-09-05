@@ -1,9 +1,10 @@
 package com.identity.ims.api.controller;
 
-import com.identity.ims.api.Entity.Encounter;
-import com.identity.ims.api.Entity.ApiModel.BiometricDetail;
-import com.identity.ims.api.Entity.ApiModel.EncounterRequest;
-import com.identity.ims.api.dto.ShortsDto;
+import com.identity.ims.api.entity.apiModel.BiometricDetail;
+import com.identity.ims.api.entity.apiModel.EncounterRequest;
+import com.identity.ims.api.entity.dto.ShortsDto;
+import com.identity.ims.api.entity.idh.Encounter;
+
 import com.identity.ims.api.services.EncounterService;
 import com.identity.ims.api.services.PayloadService;
 import com.identity.ims.api.services.SolrService;
@@ -31,6 +32,8 @@ public class encounterController {
   @Autowired
   PayloadService payloadService; 
   
+ 
+
   private final SolrService solrService;
 
   @PostMapping("/registerEncounter")
@@ -49,6 +52,8 @@ public class encounterController {
   @RequestMapping("/GetEncounterMatchCountById/{id}")
   public String GetEncounterMatchCountById(@PathVariable Integer id) {
     //Encounter encounter =encounterRepository.getById(id);
+
+    
     Encounter encounter = entityManager.find(Encounter.class, id);
 
     String ss = encounter.getContactEmail();
@@ -62,16 +67,12 @@ public class encounterController {
     return solrService.deleteAll();
   }
 
-  /*
-  public User getUserById(@PathVariable (value = "id") long userId) {
-		return this.userRepository.findById(userId)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found with id :" + userId));
-	}
-*/
+ 
+
 
   @RequestMapping("/GetEncounterAgency/{id}")
   @ApiOperation(value = "demostration to retrieve json request object that came from clients and return a attribute value", httpMethod = "GET")
-  public String GetEncounterMatches(@PathVariable Integer id) throws Exception {
+  public String GetEncounterMatches(@PathVariable Integer id) {
      return payloadService.RetrievePayLoadById(id, EncounterRequest.class).getEncounterRegisterDetails().getAgencyName();
   }
 

@@ -1,12 +1,12 @@
 package com.identity.ims.api.services;
 
 
-import com.identity.ims.api.dto.CodeTableRowDto;
-import com.identity.ims.api.enums.CodeTable;
-
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.identity.ims.api.entity.apiModel.Country;
+import com.identity.ims.api.entity.dto.CodeTableRowDto;
+import com.identity.ims.api.entity.enums.CodeTable;
 
 import org.hibernate.transform.Transformers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,4 +58,7 @@ public class CodeTableService {
 
       
   } 
+
+ 
+
 }

@@ -5,8 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.identity.ims.api.Entity.Encounter;
-
+import com.identity.ims.api.entity.idh.Encounter;
 import com.identity.ims.api.repository.EncounterRepository;
 import com.identity.ims.api.repository.SolrEncounterRepository;
 

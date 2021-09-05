@@ -1,15 +1,13 @@
 package com.identity.ims.api.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import com.identity.ims.api.Entity.Encounter;
-import com.identity.ims.api.Entity.ApiModel.EncounterRequest;
-import com.identity.ims.api.Entity.Orchestrator.FlowInstance;
-import com.identity.ims.api.Entity.Orchestrator.FlowInstanceStatusType;
-import com.identity.ims.api.Entity.Orchestrator.Payload;
-import com.identity.ims.api.Entity.Orchestrator.PayloadType;
-import com.identity.ims.api.dto.ShortsDto;
-
+import com.identity.ims.api.entity.apiModel.EncounterRequest;
+import com.identity.ims.api.entity.dto.ShortsDto;
+import com.identity.ims.api.entity.idh.Encounter;
+import com.identity.ims.api.entity.orchestrator.FlowInstance;
+import com.identity.ims.api.entity.orchestrator.FlowInstanceStatusType;
+import com.identity.ims.api.entity.orchestrator.Payload;
+import com.identity.ims.api.entity.orchestrator.PayloadType;
 import com.identity.ims.api.repository.EncounterRepository;
 import java.util.HashMap;
 import java.util.List;

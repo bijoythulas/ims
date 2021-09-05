@@ -24,6 +24,13 @@
 	</properties>
 	<dependencies>
 
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			
+		</dependency>
+
+
 <!--
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -113,12 +120,12 @@
             <version>${version.mapstruct-lombok}</version>
         </dependency>
 
-	 <dependency>
+	    <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
             <version>0.2.1</version>
         </dependency>
-
+		
 	</dependencies>
 
 	<build>
@@ -163,9 +170,10 @@
                        -Amapstruct.defaultComponentModel=spring
                 </compilerArg>
             </compilerArgs>
+		<generatedSourcesDirectory>src-gen/main/java </generatedSourcesDirectory>
     </configuration>
 </plugin>
-
+<!--
 <plugin>
     <groupId>org.codehaus.mojo</groupId>
     <artifactId>build-helper-maven-plugin</artifactId>
@@ -184,7 +192,7 @@
         </execution>
     </executions>
 </plugin>
-<!--
+
 <plugin>
     <groupId>org.openapitools</groupId>
     <artifactId>openapi-generator-maven-plugin</artifactId>
@@ -200,7 +208,7 @@
                 </inputSpec>
                 <generatorName>jaxrs-spec</generatorName>
                 <apiPackage>com.identity.ims.api</apiPackage>
-                <modelPackage>com.identity.ims.api.Entity.ApiModel</modelPackage>
+                <modelPackage>com.identity.ims.api.entity.apiModel</modelPackage>
                 <supportingFilesToGenerate>
                   ApiUtil.java
                 </supportingFilesToGenerate>

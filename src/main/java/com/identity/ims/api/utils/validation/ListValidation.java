@@ -3,7 +3,7 @@ package com.identity.ims.api.utils.validation;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-import com.identity.ims.api.enums.CodeTable;
+import com.identity.ims.api.entity.enums.CodeTable;
 
 import java.lang.annotation.*;
 

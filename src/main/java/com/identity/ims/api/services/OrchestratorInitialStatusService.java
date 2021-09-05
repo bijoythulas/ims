@@ -1,24 +1,22 @@
 package com.identity.ims.api.services;
 
-import com.identity.ims.api.Entity.Orchestrator.FlowInstance;
-import com.identity.ims.api.Entity.Orchestrator.FlowInstanceStatusType;
-
-
+import com.identity.ims.api.entity.interfaces.StageProcessor;
+import com.identity.ims.api.entity.orchestrator.FlowInstance;
+import com.identity.ims.api.entity.orchestrator.FlowInstanceStatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class OrchestratorInitialStatusService {
-    
-    @Autowired
-    PayloadService payloadService;
+public class OrchestratorInitialStatusService implements StageProcessor {
 
-    @Autowired
-    FlowInstanceService flowInstanceService; 
+  @Autowired
+  PayloadService payloadService;
 
-    boolean ProcessStage(FlowInstance flowInstance)
-    {
-        /*
+  @Autowired
+  FlowInstanceService flowInstanceService;
+
+  public boolean ProcessStage(FlowInstance flowInstance) {
+    /*
 
         //store the id05 payload for later use
         payloadService.PersistPayload(flowInstance.getId()
@@ -42,8 +40,10 @@ public class OrchestratorInitialStatusService {
         eg below
         
         */
-        flowInstanceService.MoveFlowToStage(flowInstance, FlowInstanceStatusType.AWAITING_CDH_SV765);
-        return true;
-
-    }
+    flowInstanceService.MoveFlowToStage(
+      flowInstance,
+      FlowInstanceStatusType.AWAITING_CDH_SV765
+    );
+    return true;
+  }
 }

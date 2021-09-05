@@ -1,6 +1,8 @@
 package com.identity.ims.api.services;
 
-import com.identity.ims.api.Entity.Orchestrator.FlowInstance;
+import com.identity.ims.api.entity.interfaces.StageProcessor;
+import com.identity.ims.api.entity.orchestrator.FlowInstance;
+import com.identity.ims.api.entity.orchestrator.FlowInstanceStatusType;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,21 +18,40 @@ public class OrchestratorService {
 
   public void ProcessEncounters() {
     List<FlowInstance> listFlowInstance = flowInstanceService.findOpenFlowInstances();
-    listFlowInstance.forEach(
-      flowInstance -> {
-        System.out.println(flowInstance.getLastModifiedBy());
-      }
-    );
+
+    //process referrals in parallel using all the cores on the server
+    listFlowInstance
+      .stream()
+      .parallel()
+      .forEach(
+        //  listFlowInstance.forEach(
+        flowInstance -> {
+          StageProcessor stageProcessor = GetStageProcessor(
+            flowInstance.getFlowInstanceStatusCode()
+          );
+
+          try {
+            stageProcessor.ProcessStage(flowInstance);
+          } catch (Exception e) {
+            throw new RuntimeException(
+              "error processing flow stage" + flowInstance.getId(),
+              e
+            );
+          }
+        }
+      );
   }
 
-  boolean ProcessFlowInstance(FlowInstance flowInstance) {
-    switch (flowInstance.getFlowInstanceStatusCode()) {
+  StageProcessor GetStageProcessor(
+    FlowInstanceStatusType flowInstanceStatusType
+  ) {
+    switch (flowInstanceStatusType) {
       case INITIAL:
-        orchestratorInitialStatusService.ProcessStage(flowInstance);
-        break;
+        return orchestratorInitialStatusService;
       default:
-        break;
+        throw new RuntimeException(
+          "unknown flow stage:" + flowInstanceStatusType.name()
+        );
     }
-    return true;
   }
 }

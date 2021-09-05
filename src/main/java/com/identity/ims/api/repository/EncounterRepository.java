@@ -1,8 +1,10 @@
 package com.identity.ims.api.repository;
 
-import com.identity.ims.api.Entity.Encounter;
-import com.identity.ims.api.dto.ShortsDto;
 import java.util.List;
+
+import com.identity.ims.api.entity.dto.ShortsDto;
+import com.identity.ims.api.entity.idh.Encounter;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

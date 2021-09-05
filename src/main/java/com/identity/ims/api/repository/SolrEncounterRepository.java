@@ -1,5 +1,7 @@
 package com.identity.ims.api.repository;
 
+import com.identity.ims.api.entity.idh.EncounterSolr;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.solr.repository.Query;
@@ -8,8 +10,6 @@ import org.springframework.data.solr.repository.Query;
 
 
 import org.springframework.data.solr.repository.SolrCrudRepository;
-
-import com.identity.ims.api.Entity.EncounterSolr;
 
 
 public interface SolrEncounterRepository extends SolrCrudRepository<EncounterSolr, Integer>{

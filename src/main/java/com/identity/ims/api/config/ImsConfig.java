@@ -12,4 +12,5 @@ public class ImsConfig {
     
     private String scheduling;
     private String processEncountersJobdelay;
+    private Boolean trace;
 }

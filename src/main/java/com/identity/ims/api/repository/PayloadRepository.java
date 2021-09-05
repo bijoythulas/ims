@@ -1,7 +1,7 @@
 package com.identity.ims.api.repository;
 
-import com.identity.ims.api.Entity.Orchestrator.Payload;
-import com.identity.ims.api.Entity.Orchestrator.PayloadType;
+import com.identity.ims.api.entity.orchestrator.Payload;
+import com.identity.ims.api.entity.orchestrator.PayloadType;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

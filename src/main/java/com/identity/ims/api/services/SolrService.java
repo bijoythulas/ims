@@ -1,10 +1,10 @@
 package com.identity.ims.api.services;
 
-import com.identity.ims.api.Entity.Encounter;
-import com.identity.ims.api.Entity.EncounterSolr;
-import com.identity.ims.api.mappers.EncounterEncounterSolrMapperImpl;
+import com.identity.ims.api.entity.mappers.EncounterEncounterSolrMapperImpl;
+import com.identity.ims.api.entity.idh.Encounter;
+import com.identity.ims.api.entity.idh.EncounterSolr;
 import com.identity.ims.api.repository.SolrEncounterRepository;
-import com.identity.ims.api.Entity.ApiModel.*;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

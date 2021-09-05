@@ -1,7 +1,7 @@
 package com.identity.ims.api.services;
 
-import com.identity.ims.api.Entity.Orchestrator.FlowInstance;
-import com.identity.ims.api.Entity.Orchestrator.FlowInstanceStatusType;
+import com.identity.ims.api.entity.orchestrator.FlowInstance;
+import com.identity.ims.api.entity.orchestrator.FlowInstanceStatusType;
 import com.identity.ims.api.repository.FlowInstanceRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
