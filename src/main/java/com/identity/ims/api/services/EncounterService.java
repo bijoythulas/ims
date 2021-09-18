@@ -1,7 +1,7 @@
 package com.identity.ims.api.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.identity.ims.api.entity.apiModel.EncounterRequest;
+
 import com.identity.ims.api.entity.dto.ShortsDto;
 import com.identity.ims.api.entity.idh.Encounter;
 import com.identity.ims.api.entity.orchestrator.FlowInstance;
@@ -48,7 +48,7 @@ public class EncounterService {
   public Encounter registerEncounter(Encounter encounter) {
     //updateCountry();
 
-    solrService.Save(encounter);
+    //solrService.Save(encounter);
     
     encounterRepository.save(encounter);
 
@@ -71,7 +71,7 @@ public class EncounterService {
   }
 
 
-  public Integer ID01( EncounterRequest encounterRequest) throws Exception{
+  public Integer ID01( Encounter encounterRequest) throws Exception{
     
     FlowInstance flowInstance = new FlowInstance(1,FlowInstanceStatusType.INITIAL,"XR01");
     

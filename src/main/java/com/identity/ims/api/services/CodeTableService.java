@@ -4,7 +4,7 @@ package com.identity.ims.api.services;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import com.identity.ims.api.entity.apiModel.Country;
+
 import com.identity.ims.api.entity.dto.CodeTableRowDto;
 import com.identity.ims.api.entity.enums.CodeTable;
 

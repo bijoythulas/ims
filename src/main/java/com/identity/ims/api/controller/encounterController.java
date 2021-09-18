@@ -1,8 +1,6 @@
 package com.identity.ims.api.controller;
 
-import com.identity.ims.api.entity.apiModel.BiometricDetail;
-import com.identity.ims.api.entity.apiModel.EncounterRequest;
-import com.identity.ims.api.entity.dto.ShortsDto;
+
 import com.identity.ims.api.entity.idh.Encounter;
 
 import com.identity.ims.api.services.EncounterService;
@@ -10,7 +8,7 @@ import com.identity.ims.api.services.PayloadService;
 import com.identity.ims.api.services.SolrService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -73,11 +71,11 @@ public class encounterController {
   @RequestMapping("/GetEncounterAgency/{id}")
   @ApiOperation(value = "demostration to retrieve json request object that came from clients and return a attribute value", httpMethod = "GET")
   public String GetEncounterMatches(@PathVariable Integer id) {
-     return payloadService.RetrievePayLoadById(id, EncounterRequest.class).getEncounterRegisterDetails().getAgencyName();
+     return payloadService.RetrievePayLoadById(id, Encounter.class).getCountry();
   }
 
   @PostMapping("/ID01")
-  public Integer ID01(@Valid @RequestBody EncounterRequest encounterRequest) throws Exception {
+  public Integer ID01(@Valid @RequestBody Encounter encounterRequest) throws Exception {
     return encounterService.ID01(encounterRequest);
   }
 

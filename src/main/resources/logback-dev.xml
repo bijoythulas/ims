@@ -4,6 +4,7 @@
          <pattern>[%d{yyyy-MM-dd HH:mm:ss}] - %msg%n</pattern>
       </encoder>
 </appender>
+<!--
 <appender name="SIZE_TIME_OUTPUT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <file>logs/sizeTimeOutputlogFile.log</file>
     <encoder>
@@ -12,25 +13,42 @@
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
         <fileNamePattern>logs/archived/sizeTimeOutputlogFile.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
         <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-<!--Max Size of file to start Archive -->
+
             <maxFileSize>10KB</maxFileSize>
         </timeBasedFileNamingAndTriggeringPolicy>
 
-<!-- Days till log history to keep -->
+
          <maxHistory>3</maxHistory>
     </rollingPolicy>
    
 </appender>
+
  <logger name="com.identity.ims" level="INFO" />
+ -->
 
+<!-- hibernate logging options
+org.hibernate.SQL           Log all SQL DML statements as they are executed
+org.hibernate.type          Log all JDBC parameters
+org.hibernate.tool.hbm2ddl  Log all SQL DDL statements as they are executed
+org.hibernate.pretty        Log the state of all entities (max 20 entities) associated with the session at flush time
+org.hibernate.cache         Log all second-level cache activity
+org.hibernate.transaction   Log transaction related activity
+org.hibernate.jdbc          Log all JDBC resource acquisition
+org.hibernate.hql.ast.AST   Log HQL and SQL ASTs during query parsing
+org.hibernate.secure        Log all JAAS authorization requests
+org.hibernate               Log everything (a lot of information, but very useful for troubleshooting) 
 
-<!--TRACE, DEBUG, INFO, WARN, ERROR;-->
+-->
+<!--TRACE, DEBUG, INFO, WARN, ERROR;
 <logger name="org.hibernate.SQL" level="DEBUG" />
 <logger name="org.hibernate.type" level="TRACE" />
+<logger name="org.hibernate" level="DEBUG" /> 
 
+-->
+<logger name="org.hibernate.SQL" level="DEBUG" />
 
    <root level = "INFO">
-      <appender-ref ref = "SIZE_TIME_OUTPUT_FILE"/>
+     <!-- <appender-ref ref = "SIZE_TIME_OUTPUT_FILE"/>-->
       <appender-ref ref = "STDOUT"/>
    </root>
 </configuration>

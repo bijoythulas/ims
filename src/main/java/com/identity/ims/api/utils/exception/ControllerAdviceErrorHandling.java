@@ -2,7 +2,6 @@ package com.identity.ims.api.utils.exception;
 
 import java.util.Objects;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.aspectj.weaver.tools.Trace;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
